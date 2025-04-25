@@ -59,13 +59,31 @@ public class Program
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+
+                using var scope = app.Services.CreateScope();
+                var services = scope.ServiceProvider;
+
+                try
+                {
+                    var context = services.GetRequiredService<DefaultContext>();
+                    context.Database.Migrate(); // Aplica migrações ou cria o banco
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "Erro ao aplicar migrações no banco de dados.");
+                }
             }
 
             app.UseHttpsRedirection();
+
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.UseBasicHealthChecks();
+
             app.MapControllers();
+
             app.Run();
         }
         catch (Exception ex)
