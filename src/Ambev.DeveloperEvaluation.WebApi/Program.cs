@@ -10,89 +10,92 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
-namespace Ambev.DeveloperEvaluation.WebApi;
-
-public class Program
+namespace Ambev.DeveloperEvaluation.WebApi
 {
-    public static void Main(string[] args)
+    public class Program
     {
-        try
+        public static void Main(string[] args)
         {
-            Log.Information("Starting web application");
-
-            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-            builder.AddDefaultLogging();
-
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-
-            builder.AddBasicHealthChecks();
-            builder.Services.AddSwaggerGen();
-
-            builder.Services.AddDbContext<DefaultContext>(options =>
-                options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-                )
-            );
-
-            builder.Services.AddJwtAuthentication(builder.Configuration);
-
-            builder.RegisterDependencies();
-
-            builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(ApplicationLayer).Assembly);
-
-            builder.Services.AddMediatR(cfg =>
+            try
             {
-                cfg.RegisterServicesFromAssemblies(
-                    typeof(ApplicationLayer).Assembly,
-                    typeof(Program).Assembly
+                Log.Information("Starting web application");
+
+                WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+                builder.AddDefaultLogging();
+
+                builder.Services.AddControllers();
+                builder.Services.AddEndpointsApiExplorer();
+
+                builder.AddBasicHealthChecks();
+                builder.Services.AddSwaggerGen(c =>
+                {
+                    c.CustomSchemaIds(type => type.FullName);
+                });
+
+                builder.Services.AddDbContext<DefaultContext>(options =>
+                    options.UseNpgsql(
+                        builder.Configuration.GetConnectionString("DefaultConnection"),
+                        b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
+                    )
                 );
-            });
 
-            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+                builder.Services.AddJwtAuthentication(builder.Configuration);
 
-            var app = builder.Build();
-            app.UseMiddleware<ValidationExceptionMiddleware>();
+                builder.RegisterDependencies();
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(ApplicationLayer).Assembly);
 
-                using var scope = app.Services.CreateScope();
-                var services = scope.ServiceProvider;
-
-                try
+                builder.Services.AddMediatR(cfg =>
                 {
-                    var context = services.GetRequiredService<DefaultContext>();
-                    context.Database.Migrate(); // Aplica migrações ou cria o banco
-                }
-                catch (Exception ex)
+                    cfg.RegisterServicesFromAssemblies(
+                        typeof(ApplicationLayer).Assembly,
+                        typeof(Program).Assembly
+                    );
+                });
+
+                builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+                var app = builder.Build();
+                app.UseMiddleware<ValidationExceptionMiddleware>();
+
+                if (app.Environment.IsDevelopment())
                 {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "Erro ao aplicar migrações no banco de dados.");
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+
+                    using var scope = app.Services.CreateScope();
+                    var services = scope.ServiceProvider;
+
+                    try
+                    {
+                        var context = services.GetRequiredService<DefaultContext>();
+                        context.Database.Migrate(); // apply database migrations
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Error on apply database migrations.");
+                    }
                 }
+
+                app.UseHttpsRedirection();
+
+                app.UseAuthentication();
+                app.UseAuthorization();
+
+                app.UseBasicHealthChecks();
+
+                app.MapControllers();
+
+                app.Run();
             }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseBasicHealthChecks();
-
-            app.MapControllers();
-
-            app.Run();
-        }
-        catch (Exception ex)
-        {
-            Log.Fatal(ex, "Application terminated unexpectedly");
-        }
-        finally
-        {
-            Log.CloseAndFlush();
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Application terminated unexpectedly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }
