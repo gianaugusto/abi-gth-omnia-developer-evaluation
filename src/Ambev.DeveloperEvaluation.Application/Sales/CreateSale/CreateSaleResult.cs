@@ -9,5 +9,10 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
         /// Unique identifier of the newly created sale.
         /// </summary>
         public Guid SaleId { get; set; }
+
+        /// <summary>
+        /// Total amount for the item (considering quantity and discount).
+        /// </summary>
+        public decimal TotalAmount { get; set; }
     }
 }

@@ -8,11 +8,6 @@
         public int SaleNumber { get; set; }
 
         /// <summary>
-        /// Gets or sets the customer.
-        /// </summary>
-        public string Customer { get; set; }
-
-        /// <summary>
         /// Gets or sets the total sale amount.
         /// </summary>
         public decimal TotalSaleAmount { get; set; }
@@ -20,18 +15,18 @@
         /// <summary>
         /// Gets or sets the branch.
         /// </summary>
-        public string Branch { get; set; }
+        public string Branch { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the sale items.
         /// </summary>
-        public ICollection<SaleItemRequest> Items { get; set; }
+        public ICollection<CreateSaleItemRequest> Items { get; set; } = [];
     }
 
     /// <summary>
     /// Data transfer object representing an item within a sale.
     /// </summary>
-    public class SaleItemRequest
+    public class CreateSaleItemRequest
     {
         /// <summary>
         /// Unique identifier of the product.

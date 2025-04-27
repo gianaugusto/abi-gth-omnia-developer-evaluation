@@ -12,15 +12,14 @@ public class SaleConfiguration : IEntityTypeConfiguration<Sale>
 
         builder.HasKey(s => s.Id);
 
+        builder.Property(s => s.CustomerId)
+            .IsRequired();
+
         builder.Property(s => s.SaleNumber)
             .IsRequired();
 
         builder.Property(s => s.SaleDate)
             .IsRequired();
-
-        builder.Property(s => s.Customer)
-            .IsRequired()
-            .HasMaxLength(100);
 
         builder.Property(s => s.Branch)
             .IsRequired()
@@ -29,8 +28,13 @@ public class SaleConfiguration : IEntityTypeConfiguration<Sale>
         // If exists a SaleItem:
         builder.HasMany(s => s.Items)
             .WithOne()
-            .HasForeignKey("SaleId")
+            .HasForeignKey(s => s.SaleId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(s => s.Customer)
+            .WithMany()
+            .HasForeignKey(s => s.CustomerId)
+            .HasConstraintName("FK_Sales_Users_CustomerId");
     }
 }
 

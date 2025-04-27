@@ -1,54 +1,58 @@
-using Ambev.DeveloperEvaluation.Domain.Entities;
-using Ambev.DeveloperEvaluation.Domain.Repositories;
-using AutoMapper;
-using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Ambev.DeveloperEvaluation.Domain.Entities;
+    using Ambev.DeveloperEvaluation.Domain.Repositories;
+    using AutoMapper;
+    using FluentValidation;
+    using MediatR;
+
     /// <summary>
     /// Handler for updating an existing sale.
     /// </summary>
-    /// <remarks>
-    /// This handler processes the <see cref="UpdateSaleCommand"/> to update an existing sale.
-    /// It uses AutoMapper to map the command to a <see cref="Sale"/> entity and saves it
-    /// to the repository. The result is a <see cref="Unit"/> indicating the operation's success.
-    /// </remarks>
-    public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, Unit>
+    public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleResult>
     {
-        private readonly ISaleRepository _saleRepository;
-        private readonly IMapper _mapper;
+        private readonly ISaleRepository saleRepository;
+        private readonly IMapper mapper;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateSaleHandler"/> class.
-        /// </summary>
-        /// <param name="saleRepository">The sale repository.</param>
-        /// <param name="mapper">The AutoMapper instance.</param>
         public UpdateSaleHandler(ISaleRepository saleRepository, IMapper mapper)
         {
-            _saleRepository = saleRepository;
-            _mapper = mapper;
+            this.saleRepository = saleRepository;
+            this.mapper = mapper;
         }
 
-        /// <summary>
-        /// Handles the update of an existing sale.
-        /// </summary>
-        /// <param name="request">The update sale command.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the unit value.</returns>
-        public async Task<Unit> Handle(UpdateSaleCommand request, CancellationToken cancellationToken)
+        public async Task<UpdateSaleResult> Handle(UpdateSaleCommand command, CancellationToken cancellationToken)
         {
-            var sale = await _saleRepository.GetByIdAsync(request.SaleId);
+            var validator = new UpdateSaleValidator();
+            var validationResult = await validator.ValidateAsync(command, cancellationToken);
+
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
+
+            var sale = await saleRepository.GetByIdAsync(command.Id);
 
             if (sale == null)
             {
-                throw new Exception("Sale not found");
+                throw new KeyNotFoundException($"Sale {command.Id} not found");
             }
 
-            _mapper.Map(request, sale);
+            if (sale.CustomerId != command.CustomerId)
+            {
+                throw new UnauthorizedAccessException($"Customer {command.CustomerId} doesn't have proper rights to perform action.");
+            }
 
-            await _saleRepository.UpdateAsync(sale);
+            // update values
+            mapper.Map(command, sale);
 
-            return Unit.Value;
+            // calculate amount
+            sale.CalculateTotalSaleAmount();
+
+            // update database
+            await saleRepository.UpdateAsync(sale);
+
+            return this.mapper.Map<UpdateSaleResult>(sale);
         }
     }
 }

@@ -1,31 +1,16 @@
-using MediatR;
-
-namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
+namespace Ambev.DeveloperEvaluation.Application.Sales.GetSale
 {
-    /// <summary>
-    /// Command for creating a new sale.
-    /// </summary>
-    /// <remarks>
-    /// This command is used to capture the required data for creating a sale,
-    /// including sale details and items. It implements <see cref="IRequest{TResponse}"/>
-    /// to initiate the request that returns a <see cref="CreateSaleResult"/>.
-    ///
-    /// The data provided in this command is validated using the
-    /// <see cref="GetSaleCommandValidator"/> which extends
-    /// <see cref="AbstractValidator{T}"/> to ensure that the fields are correctly
-    /// populated and follow the required rules.
-    /// </remarks>
-    public class CreateSaleCommand : IRequest<CreateSaleResult>
+    public class GetSaleResult
     {
+        /// <summary>
+        /// Gets or sets the sale ID.
+        /// </summary>
+        public Guid Id { get; set; }
+
         /// <summary>
         /// Gets or sets the sale number.
         /// </summary>
         public int SaleNumber { get; set; }
-
-        /// <summary>
-        /// Gets or sets the customer.
-        /// </summary>
-        public Guid CustomerId { get; set; }
 
         /// <summary>
         /// Gets or sets the total sale amount.
@@ -40,13 +25,10 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
         /// <summary>
         /// Gets or sets the sale items.
         /// </summary>
-        public ICollection<CreateSaleItem> Items { get; set; } = [];
+        public ICollection<GetSaleItemResult> Items { get; set; } = [];
     }
 
-    /// <summary>
-    /// item within a sale.
-    /// </summary>
-    public class CreateSaleItem
+    public class GetSaleItemResult
     {
         /// <summary>
         /// Unique identifier of the product.
@@ -73,5 +55,4 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
         /// </summary>
         public decimal TotalAmount { get; set; }
     }
-
 }

@@ -22,4 +22,9 @@ public static class Validator
 
         return [];
     }
+
+    public static bool BeAValidGuid(string guidString)
+    {
+        return Guid.TryParse(guidString, out _);
+    }
 }

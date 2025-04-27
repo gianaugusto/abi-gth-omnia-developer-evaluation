@@ -18,11 +18,6 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public DateTime SaleDate { get; set; }
 
         /// <summary>
-        /// Name of the customer who made the purchase.
-        /// </summary>
-        public string Customer { get; set; }
-
-        /// <summary>
         /// Total amount of the sale.
         /// </summary>
         public decimal TotalSaleAmount { get; set; }
@@ -30,7 +25,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// <summary>
         /// Branch where the sale was made.
         /// </summary>
-        public string Branch { get; set; }
+        public string? Branch { get; set; }
 
         /// <summary>
         /// Indicates whether the sale has been cancelled.
@@ -43,17 +38,35 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public ICollection<SaleItem> Items { get; set; }
 
         /// <summary>
+        /// Customer identifier
+        /// </summary>
+        public Guid CustomerId { get; set; }
+
+
+        /// <summary>
+        /// customer who made the purchase.
+        /// </summary>
+        public virtual User? Customer { get; set; }
+
+        /// <summary>
         /// Creates a new instance of a sale.
         /// </summary>
-        public Sale(int saleNumber, DateTime saleDate, string customer, decimal totalSaleAmount, string branch, bool isCancelled, ICollection<SaleItem> saleItems)
+        public Sale(int saleNumber, DateTime saleDate, Guid customerId, decimal totalSaleAmount, string branch, bool isCancelled, ICollection<SaleItem> saleItems)
         {
             SaleNumber = saleNumber;
             SaleDate = saleDate;
-            Customer = customer;
+            CustomerId = customerId;
             TotalSaleAmount = totalSaleAmount;
             Branch = branch;
             IsCancelled = isCancelled;
             Items = saleItems;
+        }
+
+        public Sale()
+        {
+            Items = [];
+            SaleDate = DateTime.UtcNow;
+            IsCancelled = false;
         }
 
         /// <summary>
@@ -62,12 +75,13 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public void AddItem(SaleItem item)
         {
             Items.Add(item);
+            CalculateTotalSaleAmount();
         }
 
         /// <summary>
         /// Cancels a specific item in the sale.
         /// </summary>
-        public void CancelItem(SaleItem item)
+        public static void CancelItem(SaleItem item)
         {
             item.IsCancelled = true;
         }
@@ -78,6 +92,14 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         public void CancelSale()
         {
             IsCancelled = true;
+        }
+
+        /// <summary>
+        /// Calculate total amount based on items
+        /// </summary>
+        public void CalculateTotalSaleAmount()
+        {
+            TotalSaleAmount = Items.Sum(item => item.TotalAmount);
         }
     }
 }

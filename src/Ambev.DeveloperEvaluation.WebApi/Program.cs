@@ -1,17 +1,18 @@
-using Ambev.DeveloperEvaluation.Application;
-using Ambev.DeveloperEvaluation.Common.HealthChecks;
-using Ambev.DeveloperEvaluation.Common.Logging;
-using Ambev.DeveloperEvaluation.Common.Security;
-using Ambev.DeveloperEvaluation.Common.Validation;
-using Ambev.DeveloperEvaluation.IoC;
-using Ambev.DeveloperEvaluation.ORM;
-using Ambev.DeveloperEvaluation.WebApi.Middleware;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-
 namespace Ambev.DeveloperEvaluation.WebApi
 {
+    using Ambev.DeveloperEvaluation.Application;
+    using Ambev.DeveloperEvaluation.Common.HealthChecks;
+    using Ambev.DeveloperEvaluation.Common.Logging;
+    using Ambev.DeveloperEvaluation.Common.Security;
+    using Ambev.DeveloperEvaluation.Common.Validation;
+    using Ambev.DeveloperEvaluation.IoC;
+    using Ambev.DeveloperEvaluation.ORM;
+    using Ambev.DeveloperEvaluation.WebApi.Middleware;
+    using Asp.Versioning;
+    using MediatR;
+    using Microsoft.EntityFrameworkCore;
+    using Serilog;
+
     public class Program
     {
         public static void Main(string[] args)
@@ -30,6 +31,13 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 builder.Services.AddSwaggerGen(c =>
                 {
                     c.CustomSchemaIds(type => type.FullName);
+                });
+
+                builder.Services.AddApiVersioning(options =>
+                {
+                    options.DefaultApiVersion = new ApiVersion(1, 0);
+                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    options.ReportApiVersions = true; 
                 });
 
                 builder.Services.AddDbContext<DefaultContext>(options =>
@@ -56,7 +64,7 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
                 var app = builder.Build();
-                app.UseMiddleware<ValidationExceptionMiddleware>();
+                //app.UseMiddleware<ErrorHandlingMiddleware>();
 
                 if (app.Environment.IsDevelopment())
                 {
@@ -78,14 +86,10 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 }
 
                 app.UseHttpsRedirection();
-
                 app.UseAuthentication();
                 app.UseAuthorization();
-
                 app.UseBasicHealthChecks();
-
                 app.MapControllers();
-
                 app.Run();
             }
             catch (Exception ex)
