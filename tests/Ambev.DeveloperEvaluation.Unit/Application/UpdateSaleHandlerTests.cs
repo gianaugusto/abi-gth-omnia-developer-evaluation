@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvaluation.Application.Events;
 using Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
@@ -11,13 +12,16 @@ namespace Ambev.DeveloperEvaluation.Unit.Application
     {
         private readonly Mock<ISaleRepository> _saleRepositoryMock;
         private readonly Mock<IMapper> _mapperMock;
+        private readonly Mock<ISaleEventProducer> _saleEventProducerMock;
         private readonly UpdateSaleHandler _handler;
 
         public UpdateSaleHandlerTests()
         {
             _saleRepositoryMock = new Mock<ISaleRepository>();
             _mapperMock = new Mock<IMapper>();
-            _handler = new UpdateSaleHandler(_saleRepositoryMock.Object, _mapperMock.Object);
+            _saleEventProducerMock = new Mock<ISaleEventProducer>();
+
+            _handler = new UpdateSaleHandler(_saleRepositoryMock.Object, _mapperMock.Object, _saleEventProducerMock.Object);
         }
 
         [Fact]

@@ -3,6 +3,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.DeleteSale
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Ambev.DeveloperEvaluation.Application.Events;
     using Ambev.DeveloperEvaluation.Domain.Repositories;
     using MediatR;
 
@@ -11,16 +12,18 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.DeleteSale
     /// </summary>
     public class DeleteSaleHandler : IRequestHandler<DeleteSaleCommand, DeleteSaleResponse>
     {
-        private readonly ISaleRepository _saleRepository;
+        private readonly ISaleRepository saleRepository;
+        private readonly ISaleEventProducer producer;
 
-        public DeleteSaleHandler(ISaleRepository saleRepository)
+        public DeleteSaleHandler(ISaleRepository saleRepository, ISaleEventProducer producer)
         {
-            _saleRepository = saleRepository;
+            this.saleRepository = saleRepository;
+            this.producer = producer;
         }
 
         public async Task<DeleteSaleResponse> Handle(DeleteSaleCommand command, CancellationToken cancellationToken)
         {
-            var sale = await _saleRepository.GetByIdAsync(command.Id);
+            var sale = await saleRepository.GetByIdAsync(command.Id);
 
             if (sale == null)
             {
@@ -32,7 +35,10 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.DeleteSale
                 throw new UnauthorizedAccessException($"Customer {command.CustomerId} doesn't have proper rights to perform action.");
             }
 
-            await _saleRepository.DeleteAsync(command.Id);
+            await saleRepository.DeleteAsync(command.Id);
+
+            // produce event
+            await this.producer.PublishSaleCancelledAsync(sale.Id);
 
             return new DeleteSaleResponse { Success = true };
 

@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvaluation.Application.Events;
 using Ambev.DeveloperEvaluation.Application.Users.GetUser;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
@@ -21,6 +22,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
         private readonly ISaleRepository saleRepository;
         private readonly IMapper mapper;
         private readonly IMediator mediator;
+        private readonly ISaleEventProducer producer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateSaleHandler"/> class.
@@ -28,11 +30,12 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
         /// <param name="saleRepository">The sale repository.</param>
         /// <param name="mapper">The AutoMapper instance.</param>
         /// <param name="mediator">The IMediator instance.</param>
-        public CreateSaleHandler(ISaleRepository saleRepository, IMapper mapper, IMediator mediator)
+        public CreateSaleHandler(ISaleRepository saleRepository, IMapper mapper, IMediator mediator, ISaleEventProducer producer)
         {
             this.saleRepository = saleRepository;
             this.mapper = mapper;
             this.mediator = mediator;
+            this.producer = producer;
         }
 
         /// <summary>
@@ -60,6 +63,9 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale
 
             // add to database
             await saleRepository.AddAsync(sale);
+
+            // produce event
+            await this.producer.PublishSaleCreatedAsync(sale.Id);
 
             return mapper.Map<CreateSaleResult>(sale);
         }

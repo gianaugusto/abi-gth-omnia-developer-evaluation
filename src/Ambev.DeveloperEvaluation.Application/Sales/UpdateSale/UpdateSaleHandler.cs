@@ -3,6 +3,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using Ambev.DeveloperEvaluation.Application.Events;
     using Ambev.DeveloperEvaluation.Domain.Repositories;
     using AutoMapper;
     using FluentValidation;
@@ -15,11 +16,13 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale
     {
         private readonly ISaleRepository saleRepository;
         private readonly IMapper mapper;
+        private readonly ISaleEventProducer producer;
 
-        public UpdateSaleHandler(ISaleRepository saleRepository, IMapper mapper)
+        public UpdateSaleHandler(ISaleRepository saleRepository, IMapper mapper, ISaleEventProducer producer)
         {
             this.saleRepository = saleRepository;
             this.mapper = mapper;
+            this.producer = producer;
         }
 
         public async Task<UpdateSaleResult> Handle(UpdateSaleCommand command, CancellationToken cancellationToken)
@@ -50,6 +53,9 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale
 
             // update database
             await saleRepository.UpdateAsync(sale);
+
+            // produce event
+            await this.producer.PublishSaleModifiedAsync(sale.Id);
 
             return this.mapper.Map<UpdateSaleResult>(sale);
         }

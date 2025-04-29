@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvaluation.Application.Events;
 using Ambev.DeveloperEvaluation.Application.Sales.DeleteSale;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
@@ -9,12 +10,16 @@ namespace Ambev.DeveloperEvaluation.Unit.Application
     public class DeleteSaleHandlerTests
     {
         private readonly Mock<ISaleRepository> _saleRepositoryMock;
+        private readonly Mock<ISaleEventProducer> _saleEventProducerMock;
+
         private readonly DeleteSaleHandler _handler;
 
         public DeleteSaleHandlerTests()
         {
             _saleRepositoryMock = new Mock<ISaleRepository>();
-            _handler = new DeleteSaleHandler(_saleRepositoryMock.Object);
+            _saleEventProducerMock = new Mock<ISaleEventProducer>();
+
+            _handler = new DeleteSaleHandler(_saleRepositoryMock.Object, _saleEventProducerMock.Object);
         }
 
         [Fact]

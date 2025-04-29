@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvaluation.Application.Events;
 using Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
@@ -13,6 +14,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application
         private readonly Mock<ISaleRepository> _saleRepositoryMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<IMediator> _mediatorMock;
+        private readonly Mock<ISaleEventProducer> _saleEventProducerMock;
         private readonly CreateSaleHandler _handler;
 
         public CreateSaleHandlerTests()
@@ -20,7 +22,8 @@ namespace Ambev.DeveloperEvaluation.Unit.Application
             _saleRepositoryMock = new Mock<ISaleRepository>();
             _mapperMock = new Mock<IMapper>();
             _mediatorMock = new Mock<IMediator>();
-            _handler = new CreateSaleHandler(_saleRepositoryMock.Object, _mapperMock.Object, _mediatorMock.Object);
+            _saleEventProducerMock = new Mock<ISaleEventProducer>();
+            _handler = new CreateSaleHandler(_saleRepositoryMock.Object, _mapperMock.Object, _mediatorMock.Object, _saleEventProducerMock.Object);
         }
 
         [Fact]
