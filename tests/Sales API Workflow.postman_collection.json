@@ -1,0 +1,187 @@
+{
+  "info": {
+    "name": "Sales API Workflow",
+    "_postman_id": "abc12345-6789-4321-abcd-1234567890ab",
+    "description": "Automated test workflow from PowerShell script",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/Users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "Users"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"string\",\n  \"password\": \"String@123\",\n  \"phone\": \"911\",\n  \"email\": \"string@string123.CO\",\n  \"status\": 1,\n  \"role\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "2. Authenticate",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/Auth",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "Auth"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"string@string123.CO\",\n  \"password\": \"String@123\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const token = pm.response.json().data.data.token;",
+              "pm.environment.set(\"token\", token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Create Sale",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1.0/Sales",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1.0", "Sales"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"saleNumber\": 100,\n  \"branch\": \"string 1\",\n  \"items\": [\n    { \"productId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\", \"quantity\": 5, \"unitPrice\": 1000 },\n    { \"productId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa3\", \"quantity\": 30, \"unitPrice\": 1000 }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const saleId = pm.response.json().id;",
+              "pm.environment.set(\"saleId\", saleId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Get Sale By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1.0/Sales/{{saleId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1.0", "Sales", "{{saleId}}"]
+        }
+      }
+    },
+    {
+      "name": "5. Update Sale",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1.0/Sales/{{saleId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1.0", "Sales", "{{saleId}}"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{saleId}}\",\n  \"saleNumber\": 1001,\n  \"totalSaleAmount\": 135.00,\n  \"branch\": \"string teste\",\n  \"items\": [\n    { \"productId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\", \"quantity\": 10, \"unitPrice\": 10, \"discount\": 0.10, \"totalAmount\": 45.00 },\n    { \"productId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa3\", \"quantity\": 1, \"unitPrice\": 20, \"discount\": 0.10, \"totalAmount\": 90.00 }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "6. Get Updated Sale",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1.0/Sales/{{saleId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1.0", "Sales", "{{saleId}}"]
+        }
+      }
+    },
+    {
+      "name": "7. Delete Sale",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1.0/Sales/{{saleId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1.0", "Sales", "{{saleId}}"]
+        }
+      }
+    },
+    {
+      "name": "8. Confirm Deletion",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1.0/Sales/{{saleId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1.0", "Sales", "{{saleId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Should return 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5119" }
+  ]
+}
