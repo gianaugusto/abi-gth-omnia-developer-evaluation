@@ -11,12 +11,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\Users\ListUsers\**" />
+    <Compile Remove="Features\Users\UpdateUser\**" />
+    <Content Remove="Features\Users\ListUsers\**" />
+    <Content Remove="Features\Users\UpdateUser\**" />
+    <EmbeddedResource Remove="Features\Users\ListUsers\**" />
+    <EmbeddedResource Remove="Features\Users\UpdateUser\**" />
+    <None Remove="Features\Users\ListUsers\**" />
+    <None Remove="Features\Users\UpdateUser\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
   </ItemGroup>
 
@@ -27,8 +40,6 @@
   <ItemGroup>
     <Folder Include="Features\Users\GetUser\" />
     <Folder Include="Features\Users\DeleteUser\" />
-    <Folder Include="Features\Users\ListUsers\" />
-    <Folder Include="Features\Users\UpdateUser\" />
   </ItemGroup>
 
 </Project>

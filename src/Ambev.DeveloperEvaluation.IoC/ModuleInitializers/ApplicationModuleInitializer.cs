@@ -1,13 +1,16 @@
 ﻿using Ambev.DeveloperEvaluation.Common.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Ambev.DeveloperEvaluation.Application.Events;
 
-namespace Ambev.DeveloperEvaluation.IoC.ModuleInitializers;
-
-public class ApplicationModuleInitializer : IModuleInitializer
+namespace Ambev.DeveloperEvaluation.IoC.ModuleInitializers
 {
-    public void Initialize(WebApplicationBuilder builder)
+    public class ApplicationModuleInitializer : IModuleInitializer
     {
-        builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+        public void Initialize(WebApplicationBuilder builder)
+        {
+            builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+            builder.Services.AddScoped<ISaleEventProducer, SaleEventProducer>();
+        }
     }
 }
