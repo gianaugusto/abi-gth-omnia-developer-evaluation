@@ -3,7 +3,6 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using Ambev.DeveloperEvaluation.Domain.Entities;
     using Ambev.DeveloperEvaluation.Domain.Repositories;
     using AutoMapper;
     using FluentValidation;
