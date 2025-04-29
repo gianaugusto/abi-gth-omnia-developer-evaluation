@@ -45,6 +45,19 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale
                 throw new UnauthorizedAccessException($"Customer {command.CustomerId} doesn't have proper rights to perform action.");
             }
 
+            // Check for canceled items
+            foreach (var commandItem in command.Items)
+            {
+                var existingItem = sale.Items.FirstOrDefault(i => i.ProductId == commandItem.ProductId);
+                if (existingItem != null && commandItem.Cancel)
+                {
+                    existingItem.Cancel();
+
+                    // produce item cancellation event
+                    await this.producer.PublishItemCancelledAsync(sale.Id, existingItem.Id);
+                }
+            }
+
             // update values
             mapper.Map(command, sale);
 

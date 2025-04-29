@@ -46,13 +46,9 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales.UpdateSale
         public decimal UnitPrice { get; set; }
 
         /// <summary>
-        /// Discount applied to the product.
+        /// Indicates whether the sale item to cancel.
         /// </summary>
-        public decimal Discount { get; set; }
-
-        /// <summary>
-        /// Total amount for the item (considering quantity and discount).
-        /// </summary>
-        public decimal TotalAmount { get; set; }
+        public bool Cancel { get; set; }
+        
     }
 }

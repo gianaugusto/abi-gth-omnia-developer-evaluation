@@ -99,7 +99,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities
         /// </summary>
         public void CalculateTotalSaleAmount()
         {
-            TotalSaleAmount = Items.Sum(item => item.TotalAmount);
+            TotalSaleAmount = Items.Where(i => !i.IsCancelled).Sum(item => item.TotalAmount);
         }
     }
 }

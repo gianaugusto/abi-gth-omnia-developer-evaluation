@@ -60,6 +60,11 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale
         /// Unit price of the product at the time of sale.
         /// </summary>
         public decimal UnitPrice { get; set; }
+
+        /// <summary>
+        /// Indicates whether the sale item to cancel.
+        /// </summary>
+        public bool Cancel { get; set; }
     }
 
 }

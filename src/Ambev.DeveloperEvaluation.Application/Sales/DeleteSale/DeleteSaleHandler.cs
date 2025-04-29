@@ -35,7 +35,11 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.DeleteSale
                 throw new UnauthorizedAccessException($"Customer {command.CustomerId} doesn't have proper rights to perform action.");
             }
 
-            await saleRepository.DeleteAsync(command.Id);
+            // cancel Sale
+            sale.CancelSale();
+
+            // update database
+            await saleRepository.UpdateAsync(sale);
 
             // produce event
             await this.producer.PublishSaleCancelledAsync(sale.Id);
