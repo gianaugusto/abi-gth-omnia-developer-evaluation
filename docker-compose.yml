@@ -10,10 +10,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
     ports:
       - 8080:8080
       - 8081:8081
+    depends_on:
+      - ambev.developerevaluation.database
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
@@ -28,3 +29,13 @@ services:
     ports:
       - 5432:5432
     restart: unless-stopped
+
+  seq:
+    container_name: seq
+    image: datalust/seq:2021.4
+    ports:
+      - 9000:80
+      - 5341:5341
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_API_INGESTIONPORT: 5341

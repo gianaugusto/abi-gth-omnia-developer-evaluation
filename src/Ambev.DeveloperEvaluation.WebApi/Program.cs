@@ -2,7 +2,6 @@ namespace Ambev.DeveloperEvaluation.WebApi
 {
     using Ambev.DeveloperEvaluation.Application;
     using Ambev.DeveloperEvaluation.Common.HealthChecks;
-    using Ambev.DeveloperEvaluation.Common.Logging;
     using Ambev.DeveloperEvaluation.Common.Security;
     using Ambev.DeveloperEvaluation.Common.Validation;
     using Ambev.DeveloperEvaluation.IoC;
@@ -22,7 +21,13 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 Log.Information("Starting web application");
 
                 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-                builder.AddDefaultLogging();
+
+                builder.Host.UseSerilog((context, services, configuration) =>
+                {
+                    configuration
+                        .ReadFrom.Configuration(context.Configuration)
+                        .ReadFrom.Services(services);
+                });
 
                 builder.Services.AddControllers();
                 builder.Services.AddEndpointsApiExplorer();
@@ -35,9 +40,9 @@ namespace Ambev.DeveloperEvaluation.WebApi
 
                 builder.Services.AddApiVersioning(options =>
                 {
-                    options.DefaultApiVersion = new ApiVersion(1, 0);
+                    options.DefaultApiVersion = new ApiVersion(1);
                     options.AssumeDefaultVersionWhenUnspecified = true;
-                    options.ReportApiVersions = true; 
+                    options.ReportApiVersions = true;
                 });
 
                 builder.Services.AddDbContext<DefaultContext>(options =>
@@ -64,7 +69,9 @@ namespace Ambev.DeveloperEvaluation.WebApi
                 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
                 var app = builder.Build();
-                //app.UseMiddleware<ErrorHandlingMiddleware>();
+
+                app.UseSerilogRequestLogging();
+                app.UseMiddleware<ErrorHandlingMiddleware>();
 
                 if (app.Environment.IsDevelopment())
                 {

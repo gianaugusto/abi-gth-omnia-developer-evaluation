@@ -37,6 +37,11 @@ namespace Ambev.DeveloperEvaluation.WebApi.Middleware
 
             switch (exception)
             {
+                case InvalidOperationException:
+                    statusCode = HttpStatusCode.BadRequest;
+                    response.Message = "Validation failed.";
+                    response.Errors = [new ValidationErrorDetail() { Detail = exception.Message }];
+                    break;
                 case ValidationException:
                     statusCode = HttpStatusCode.BadRequest;
                     response.Message = "Validation failed.";
@@ -46,13 +51,12 @@ namespace Ambev.DeveloperEvaluation.WebApi.Middleware
                 case KeyNotFoundException:
                     statusCode = HttpStatusCode.NotFound;
                     response.Message = "Resource not found.";
-                    response.Errors =[new ValidationErrorDetail() { Detail = exception.Message }];
+                    response.Errors = [new ValidationErrorDetail() { Detail = exception.Message }];
                     break;
                 case UnauthorizedAccessException:
                     statusCode = HttpStatusCode.Forbidden;
                     response.Message = "Unauthorized access.";
                     response.Errors = [new ValidationErrorDetail() { Detail = exception.Message }];
-
                     break;
                 default:
                     statusCode = HttpStatusCode.InternalServerError;

@@ -65,14 +65,25 @@ The API needs to handle sales records and provide information such as:
 
 2. **Build and Run the Containers**:
    ```sh
-   docker-compose up --build
-   ```
+	docker-compose build
+	docker-compose up
+	 ```
 
-3. **Run Migrations**:
+3. You should be able to browse different components of the application by using the below URLs :
+
+```sh
+	Web Api			: http://localhost:8080/
+	Log Dashboard   : http://localhost:9000/
+``` 
+
+
+4. **Run Migrations**:	 
+In case of running in a non Development environment is needed to **Run Migrations** otherwise the schema will be created automatically
    ```sh
    dotnet ef migrations add InitialCreate --project src/Ambev.DeveloperEvaluation.ORM --startup-project src/Ambev.DeveloperEvaluation.WebApi
    dotnet ef database update --project src/Ambev.DeveloperEvaluation.ORM --startup-project src/Ambev.DeveloperEvaluation.WebApi
    ```
+
 
 ### Explanation of Rules
 
