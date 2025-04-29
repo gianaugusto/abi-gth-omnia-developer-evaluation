@@ -32,7 +32,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application
                 SaleDate = DateTime.UtcNow,
                 Branch = "Branch1",
                 Items = [
-                            new UpdateSaleItem { ProductId = Guid.NewGuid(), Quantity = 5, UnitPrice = 10, Discount = 0, TotalAmount = 50 }
+                            new UpdateSaleItem { ProductId = Guid.NewGuid(), Quantity = 5, UnitPrice = 10 }
                         ]
             };
 
